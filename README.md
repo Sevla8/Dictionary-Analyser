@@ -1,1 +1,1 @@
-# Dictionary-Analyser
+# Lang-Stat
