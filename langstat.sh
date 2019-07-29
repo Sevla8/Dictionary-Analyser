@@ -1,14 +1,19 @@
 #!/bin/bash
 
 # langstat.sh : give statistics on letter occurrences in a specific language
+
 # Usage : langstat.sh <dictionary>
 # -> Display the number of times each letter is used at least once in a word of <dictionary>
+
 # Usage : langstat.sh -p <dictionary>
 # -> Display the percentage of times each letter is used at least once in a word of <dictionary>
+
 # Usage : langstat.sh -w <word> <dictionary>
-# -> Return true if <word> is a word of <dictionary>
+# -> Return true if <word> is a word of <dictionary> false otherwise
+
 # Usage : langstat.sh -a <dictionary>
 # -> Display the number of times each letter is used in <dictionary>
+
 # Usage : langstat.sh -b <alphabet> <dictionary>
 # -> Display the number of times each letter is used at least once in a word of <dictionary> using <alphabet> as alphabet
 
@@ -48,13 +53,23 @@ main() {
 	while [ $index -le $size ]
 	do
 		letter=`expr substr $alphabet $index 1`
-		if [[ -n $percentage && $percentage = true ]]
+		if [[ -n $percentage && $percentage == true ]]
 		then
-			echo "$((`wc -l $dico | cut -d ' ' -f 1` / `grep -ic $letter $dico`)) - $letter" >> $filename
+			if [[ -n $all && $all == true ]]
+			then
+				echo $(echo "`grep -io $letter $dico | wc -l` / `wc -l $dico | cut -d ' ' -f 1`" | bc -l) - $letter >> $filename
+			else
+				echo $(echo "`grep -ic $letter $dico` / `wc -l $dico | cut -d ' ' -f 1`" | bc -l) - $letter >> $filename
+			fi
 		else
-			echo "`grep -ic $letter $dico` - $letter" >> $filename
+			if [[ -n $all && $all == true ]]
+			then
+				echo "`grep -io $letter $dico | wc -l` - $letter" >> $filename
+			else 
+				echo "`grep -ic $letter $dico` - $letter" >> $filename
+			fi
 		fi
-		index=$((index++))
+		index=$((index+1))
 	done
 
 	sort -rn $filename
@@ -90,18 +105,12 @@ do
 	case "${option}" in 
 		p)
 			percentage=true
-			main
-			exit 0
 			;;
 		a)
 			all=true
-			main
-			exit 0
 			;;
 		b)
 			alphabet=${OPTARG}
-			main
-			exit 0
 			;;
 		w)
 			word=${OPTARG}
@@ -116,7 +125,6 @@ do
 done
 shift $((OPTIND--))
 
-# Without options
 main
 exit 0
 
