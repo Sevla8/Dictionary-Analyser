@@ -82,6 +82,7 @@ main() {
 if [[ $# -lt 1 || $# -gt 5 ]]
 then
 	usage
+	exit
 fi
 if [ ! -e $dico ]
 then
